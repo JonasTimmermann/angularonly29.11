@@ -73,6 +73,8 @@ editOn: boolean = false;
 
 antOpAnzahl: number = 1;
 
+catOpAnzahl: number = 1;
+
 
 
 
@@ -87,6 +89,11 @@ choiceArray = new Array<Choices>(); // this.fakeChoiceArray.length
 
 
 choiceExample: Choices = {id: 0, choice: "", questionType: null};
+
+
+fakeCategoryArray = new Array(this.catOpAnzahl);
+categoryArray = new Array<QuestionCategory>();
+
 
 
 antOpString: string = "";
@@ -147,17 +154,22 @@ this.antwortMoeglichkeiten = [{id: 1, name: "Text-Eingabe"},{id: 2, name: "Radio
 this.selectedValue = "Moin";
 
 this.antOpAnzahl = 1;
+this.catOpAnzahl = 1;
 
 this.frage = {id: 1, frage: "Frage eingeben", kategorie: "", antwortTyp: "", antwortOptionen:"", hinweis: ""};
 
 
-
+this.chosenFormType = "";
 
 
 
 let chbsp: Choices = {id: 0, choice: "", questionType: null};
 this.choiceArray.push(chbsp);
 
+
+let catbsp: QuestionCategory = {id: 0, category: "", processNumber: 0};
+this.categoryArray.push(catbsp);
+console.log(this.categoryArray);
 
 
 
@@ -294,17 +306,25 @@ for(let i = 0; i < this.data.length; i++){
     this.question.id = question.id;
     this.question.hint = question.hint;
     this.question.questionType = question.questionType;
-    this.question.questionCategory = question.questionCategory;
+    this.question.questionCategory = question.questionCategories;
     this.question.formType = question.formType;
 
     this.toggleEdit();
-    
+
+    console.log(question.questionCategories);
+
+    this.categoryArray = question.questionCategories;
     this.choiceArray = question.questionType.choices;
 
 
     console.log(this.choiceArray);
+    console.log(this.categoryArray);
 
     this.fakeChoiceArray = new Array(this.choiceArray.length);
+    this.fakeCategoryArray = new Array(this.categoryArray.length);
+
+    this.antOpAnzahl = this.choiceArray.length
+    this.catOpAnzahl = this.categoryArray.length
 
   }
 
@@ -453,6 +473,9 @@ if(!this.check){
   //this.question = {id: 2, question: "dein Alter hier eintragen", questionType: this.questionType, hint: "no Hinweis vorhanden", formType: "Gewerbean u. umeldung", questionCategory: this.qcArray};
   let zt: number = this.data[this.data.length - 1].questionType.id + 1;
 
+
+
+
   let questionZw: QuestionType = {id: zt, type: this.question.questionType.type, choices: this.choiceArray}; // ,question: this.question
   //console.log(questionZw);
 
@@ -461,19 +484,47 @@ if(!this.check){
   //this.questionType.question = this.question;
   this.question.questionType = questionZw;
 
+  let categoryZw: QuestionCategory[] = this.categoryArray;
+  this.question.questionCategory = this.categoryArray;//categoryZw;
+ console.log("Länge: " + this.question.questionCategory.length);
 //this.frage.antwortTyp = this.selectedValue;
 //this.frage.kategorie = this.selectedValueKat;
 
   this.dataSet.add(this.question.formType);
-//this.person.id = this.data[this.data.length - 1].id + 1;
+
+
+  // Die Objekte von den "GET"-Methoden werden gekürtzt (Id's werden gelöscht) für die Post/Put-methoden
+  let dataShortChoices: ChoicesShort[] = [];
+    for(let r = 0; r < this.question.questionType.choices.length; r++){
+      dataShortChoices.push({choice: this.question.questionType.choices[r].choice} );//,nextQuestionId: this.question.questionType.choices[r].nextQuestionId});
+    }
+      
+    let dataShortQuestionType: QuestionTypeShort;
+    dataShortQuestionType = {type: this.question.questionType.type, choices: dataShortChoices}; //,nextQuestionId: this.question.questionType.nextQuestionId};
+
+    let dataShortCategory: QuestionCategoryShort[] = [];
+    for(let r = 0; r <this.question.questionCategory.length; r++){
+      dataShortCategory.push({category: this.question.questionCategory[r].category, processNumber: this.question.questionCategory[r].processNumber});
+    console.log("Kat: " + this.question.questionCategory[r].category);
+    }
+   
+    let dataShort: QuestionShort;
+
+    dataShort = {question: this.question.question, questionType: dataShortQuestionType, hint: this.question.hint, formType: this.question.formType, questionCategories: dataShortCategory };
+
+    //this.person.id = this.data[this.data.length - 1].id + 1;
     //console.log(this.question);
-  this.api.addQuestion(this.question, this.urlAdd).subscribe(data => {console.log(data);this.data = data; this.dataDisplay = data;}, err => {console.log(err);});
+    console.log("Ende"+ dataShortCategory.length + " | " + dataShort.questionCategories.length);
+    console.log(dataShort.questionCategories);
+    console.log(dataShort);
+
+  this.api.addQuestion(dataShort, this.urlAdd).subscribe(data => {console.log(data); this.data = data; this.dataDisplay = data;}, err => {console.log(err);});
 
 }
 
 
 
-location.reload();
+ location.reload();
 
 
 }
@@ -486,6 +537,44 @@ getAllQuestion(): void {
 
   this.api.getQuestion(this.url3).subscribe(data => {console.log(data);this.data = data; this.dataDisplay = data; 
     
+
+/** 
+
+
+    let dataShortChoices: ChoicesShort[];
+    for(let r = 0; r <this.question.questionType.choices.length; r++){
+      dataShortChoices.push({choice: this.question.questionType.choices[r].choice, nextQuestionId: this.question.questionType.choices[r].nextQuestionId});
+    }
+      
+      
+
+
+    let dataShortQuestionType: QuestionTypeShort;
+    dataShortQuestionType = {type: this.question.questionType.type, choices: dataShortChoices, nextQuestionId: this.question.questionType.nextQuestionId};
+
+      
+
+
+    let dataShortCategory: QuestionCategoryShort[];
+    for(let r = 0; r <this.question.questionCategory.length; r++){
+      dataShortCategory.push({category: this.question.questionCategory[r].category, processNumber: this.question.questionCategory[r].processNumber});
+    }
+   
+
+     
+
+    let dataShort: QuestionShort;
+
+    dataShort = {question: this.question.question, questionType: dataShortQuestionType, hint: this.question.hint, formType: this.question.formType, questionCategory: dataShortCategory }
+  
+    
+  
+**/
+
+
+
+
+
     this.dataSet =  new Set<String>();
     for(let u = 0; u < data.length; u++){
       this.dataSet.add(data[u].formType);
@@ -546,12 +635,18 @@ getFormType(): void{
 }
 
 editQuestion(): void{
+    
+
 
   let questionZw: QuestionType = {id: this.question.questionType.id, type: this.question.questionType.type, choices: this.choiceArray}; //, question: this.question 
 
   //this.questionType.choices = this.choiceArray;
   //this.questionType.id = 20;
   this.question.questionType = questionZw;
+  
+  let categoryZw: QuestionCategory[] = this.categoryArray;
+  this.question.questionCategory = this.categoryArray;//categoryZw;
+
 
   //this.dataSet.delete(this.question.formType);
 
@@ -559,7 +654,36 @@ editQuestion(): void{
   this.urlEdit = 'http://localhost:8090/frage/' + this.editId + '/edit';
 
 
-  this.api.editQuestion(this.urlEdit, this.question, this.editId).subscribe(data => {console.log(data);this.data = data;this.dataDisplay = data;
+
+
+// Die Objekte von den "GET"-Methoden werden gekürtzt (Id's werden gelöscht) für die Post/Put-methoden
+    let dataShortChoices: ChoicesShort[] = [];
+    for(let r = 0; r < this.question.questionType.choices.length; r++){
+      dataShortChoices.push({choice: this.question.questionType.choices[r].choice} );//,nextQuestionId: this.question.questionType.choices[r].nextQuestionId});
+    }
+      
+
+    
+
+    let dataShortQuestionType: QuestionTypeShort;
+    dataShortQuestionType = {type: this.question.questionType.type, choices: dataShortChoices}; //,nextQuestionId: this.question.questionType.nextQuestionId};
+
+
+    let dataShortCategory: QuestionCategoryShort[] = [];
+    for(let r = 0; r < this.question.questionCategory.length; r++){
+      dataShortCategory.push({category: this.question.questionCategory[r].category, processNumber: this.question.questionCategory[r].processNumber});
+    }
+
+   
+    let dataShort: QuestionShort;
+
+    dataShort = {question: this.question.question, questionType: dataShortQuestionType, hint: this.question.hint, formType: this.question.formType, questionCategories: dataShortCategory };
+  
+    
+  
+
+
+  this.api.editQuestion(this.urlEdit, dataShort, this.editId).subscribe(data => {console.log(data);this.data = data;this.dataDisplay = data;
     
         this.dataSet =  new Set<String>();
         for(let u = 0; u < data.length; u++){
@@ -575,6 +699,7 @@ editQuestion(): void{
   this.deleteOn = false;
 
   location.reload();
+  
 }
 
 
@@ -765,6 +890,50 @@ location.reload();
 
 
 
+  addInputCat(){
+
+    let cat: QuestionCategory = {id: 0, category: "kp", processNumber: 0};
+
+    this.catOpAnzahl += 1;
+   
+    this.fakeCategoryArray = new Array(this.catOpAnzahl);
+
+
+    //cat.category = this.qtArray;
+
+    if(this.categoryArray.length > 0){
+      
+      cat.id = this.categoryArray[this.categoryArray.length - 1].id + 1;
+    }else{
+      cat.id = 0;
+ 
+    }
+      
+    this.categoryArray.push(cat);
+    
+
+   
+    console.log(this.categoryArray);
+    console.log(this.fakeCategoryArray.length);
+  }
+
+
+
+  deleteInputCat(){
+
+    if(this.catOpAnzahl > 0){
+      this.catOpAnzahl -= 1;
+      this.fakeCategoryArray = new Array(this.catOpAnzahl); 
+      this.categoryArray.pop();
+    }
+  }
+
+
+
+
+
+
+
 
 }
 
@@ -810,6 +979,56 @@ questionCategory:Array<QuestionCategory>
 
 
 }
+
+
+//--------------------------------------------------------------------------------------------------------------------------
+
+
+interface QuestionTypeShort{
+
+  type:string,
+  choices:Array<ChoicesShort>,
+  //nextQuestionId:number
+  
+  }
+  
+  
+  interface QuestionCategoryShort{
+  
+
+  category:string,
+  //questions:Array<Question>,
+  processNumber:number
+  
+  }
+  
+  
+  interface ChoicesShort{
+  
+
+  choice:string,
+  //questionType:Array<QuestionTypeShort>,
+  //nextQuestionId:number
+  
+  }
+  
+  
+  interface QuestionShort{
+  
+
+  question:string,
+  questionType:QuestionTypeShort,
+  hint:string,
+  formType:string,
+  questionCategories:Array<QuestionCategoryShort>,
+  
+  
+  }
+
+
+
+
+
 
 
 
