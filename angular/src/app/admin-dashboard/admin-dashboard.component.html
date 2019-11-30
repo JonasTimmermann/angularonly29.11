@@ -263,9 +263,23 @@
         </table>
 -->
 
-        <button class="btn btn-success" (click)="getFormType()" >GetFormType</button><button class="btn btn-primary" (click)="getAllQuestion()" >Get All Questions</button>
-                <select class="form-control" [(ngModel)]="chosenFormType"  name="typ2">  <!--ng-options="item for item in names"-->
+       <!-- <button class="btn btn-success" (click)="getFormType()" >GetFormType</button><button class="btn btn-primary" (click)="getAllQuestion()" >Get All Questions</button>
+                <select class="form-control" [(ngModel)]="chosenFormType"  name="typ2">  
                         <option *ngFor="let a of dataSet" [ngValue]="a" >{{a}}</option>
+                </select>
+        <br>
+        -->
+        <!--ng-options="item for item in names"-->
+
+
+        
+        <button class="btn btn-success" (click)="getAllQuestionsOfFormTypeWithinCategory()" >GetFormTypeCategory</button><button class="btn btn-primary" (click)="getAllQuestion()" >Get All Questions</button>
+                <select class="form-control" (change)="changeCatOn()" [(ngModel)]="chosenFormTypeCat"  name="typ2">  <!--ng-options="item for item in names"-->
+                        <option *ngFor="let a of dataSet" [ngValue]="a" >{{a}}</option>
+                </select>
+                <br>
+                <select (change)="getAllQuestionsOfFormTypeWithinCategory()" *ngIf="catOn" class="form-control" [(ngModel)]="chosenCategoryCat"  name="typ2">  <!--ng-options="item for item in names"-->
+                        <option *ngFor="let a of dataSetCat" [ngValue]="a" >{{a}}</option>
                 </select>
         <br>
 
@@ -297,13 +311,14 @@
 
         </table>
 
-
+        <!--ng-options="item for item in names"-->
+<!--
         <br>
         <br>
         <br>
 
         <button class="btn btn-success" (click)="getQuestionById()" >GetQuestionById</button>
-                <select class="form-control" [(ngModel)]="urlById"  name="typ">  <!--ng-options="item for item in names"-->
+                <select class="form-control" [(ngModel)]="urlById"  name="typ">  
                         <option *ngFor="let a of data" [ngValue]="a.id" >{{a.id}}</option>
                 </select>
         <br>
@@ -334,6 +349,13 @@
 
                 </table>
         </div>
+
+
+-->
+
+
+
+
 
 
 

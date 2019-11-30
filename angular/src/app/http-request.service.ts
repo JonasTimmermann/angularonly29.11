@@ -47,6 +47,25 @@ export class HttpRequestService {
     
     }
 
+    public getCategory(url: string): any {
+
+      return this.http.get(url).pipe(map(response => {
+        return response;
+      }));
+      
+      }
+  
+
+    
+
+  public getAllQuestionsOfFormTypeWithinCategory(url: string): any {
+
+      return this.http.get(url).pipe(map(response => {
+        return response;
+      }));
+      
+    }
+
   public editQuestion(url: string, question: any, id: any): any {
 
     return this.http.put<any>(url, question, id);

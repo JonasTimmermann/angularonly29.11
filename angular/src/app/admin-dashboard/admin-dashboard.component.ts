@@ -26,6 +26,14 @@ export class AdminDashboardComponent implements OnInit {
   formType: string = ""; 
   urlFormType = 'http://localhost:8090/type/' + this.formType;
 
+  
+
+
+  formTypeCat: string = ""; 
+  categoryCat: string = ""; 
+  urlFormTypeCategory = 'http://localhost:8090/type/' + this.formTypeCat + '/category/' + this.categoryCat;
+  urlCategory = 'http://localhost:8090/category/' + this.categoryCat;
+
   editId: number = -1;
   urlEdit: string = 'http://localhost:8090/frage/' + this.editId + '/edit';
 
@@ -36,8 +44,10 @@ export class AdminDashboardComponent implements OnInit {
 
 
   chosenFormType: string = "";
+  chosenFormTypeCat: string = "";
+  chosenCategoryCat: string = "";
 
-
+  catOn: boolean = false;
 
   public data: any;
 
@@ -47,6 +57,7 @@ export class AdminDashboardComponent implements OnInit {
   public data4: any;
 
  public dataSet =  new Set();
+ public dataSetCat =  new Set();
 
   public dataDisplay: any;
 
@@ -160,6 +171,8 @@ this.frage = {id: 1, frage: "Frage eingeben", kategorie: "", antwortTyp: "", ant
 
 
 this.chosenFormType = "";
+this.chosenFormTypeCat = "";
+this.chosenCategoryCat = "";
 
 
 
@@ -221,7 +234,17 @@ this.api
     this.data = dataDisplay;
 
 
+    this.dataSetCat = new Set<String>();
+    this.dataSetCat.add("keine Kategorie");
+    for(let u1 = 0; u1 < dataDisplay.length; u1++){
+      for(let u2 = 0; u2 < dataDisplay[u1].questionCategories.length; u2++){
+        this.dataSetCat.add(dataDisplay[u1].questionCategories[u2].category);
+    }
+  }
+    console.log(this.dataSetCat);
+
     this.dataSet =  new Set<String>();
+    this.dataSet.add("Alle Fragen");
     for(let u = 0; u < dataDisplay.length; u++){
       this.dataSet.add(dataDisplay[u].formType);
     }
@@ -290,6 +313,33 @@ for(let i = 0; i < this.data.length; i++){
       //getted from binding
    
     
+  }
+
+
+  changeCatOn(): void{
+    console.log("ChangeCatOn worked")
+    this.catOn = true;
+
+
+    this.dataSetCat =  new Set<String>();
+    this.dataSetCat.add("keine Kategorie");
+    for(let t = 0; t < this.data.length; t++){
+     
+      if(this.chosenFormTypeCat == this.data[t].formType){
+        
+        for(let g = 0; g < this.data[t].questionCategories.length; g++){
+
+          this.dataSetCat.add(this.data[t].questionCategories[g].category);
+        }
+      }
+
+    }
+
+    this.chosenCategoryCat = "keine Kategorie";
+    this.getAllQuestionsOfFormTypeWithinCategory();
+
+
+
   }
 
 
@@ -412,7 +462,17 @@ createQuestion(): void{
     this.data = data;
     this.dataDisplay = data;
 
+    this.dataSetCat = new Set<String>();
+    this.dataSetCat.add("keine Kategorie")
+    for(let u1 = 0; u1 < data.length; u1++){
+      for(let u2 = 0; u2 < data[u1].questionCategories.length; u2++){
+      this.dataSetCat.add(data[u1].questionCategories[u2].category);
+    }
+  }
+    console.log(this.dataSetCat);
+
     this.dataSet =  new Set<String>();
+    this.dataSet.add("Alle Fragen");
     for(let u = 0; u < data.length; u++){
       this.dataSet.add(data[u].formType);
     }
@@ -491,6 +551,14 @@ if(!this.check){
 //this.frage.kategorie = this.selectedValueKat;
 
   this.dataSet.add(this.question.formType);
+
+  
+  for(let u1 = 0; u1 < this.question.questionCategory.length; u1++){
+    
+    this.dataSetCat.add(this.question.questionCategory[u1].category);
+  
+}
+  
 
 
   // Die Objekte von den "GET"-Methoden werden gekürtzt (Id's werden gelöscht) für die Post/Put-methoden
@@ -572,10 +640,17 @@ getAllQuestion(): void {
 **/
 
 
-
+this.dataSetCat = new Set<String>();
+this.dataSetCat.add("keine Kategorie")
+    for(let u1 = 0; u1 < data.length; u1++){
+      for(let u2 = 0; u2 < data[u1].questionCategories.length; u2++){
+      this.dataSetCat.add(data[u1].questionCategories[u2].category);
+    }
+  }
 
 
     this.dataSet =  new Set<String>();
+    this.dataSet.add("Alle Fragen");
     for(let u = 0; u < data.length; u++){
       this.dataSet.add(data[u].formType);
     }
@@ -626,13 +701,92 @@ getFormType(): void{
     this.urlFormType = 'http://localhost:8090/type/' + this.formType;
 
     this.api.getFormType(this.urlFormType).subscribe(data4 => {console.log(data4);this.data4 = data4;this.dataDisplay = data4;},err => {console.log(err);});
-
     
   }
 
-  
+}
+
+
+
+
+
+
+
+getCategory(): void{
+
+
+    this.categoryCat = this.chosenCategoryCat; 
+    console.log(this.chosenCategoryCat);
+    this.urlCategory = 'http://localhost:8090/category/' + this.categoryCat;
+
+    this.api.getFormType(this.urlCategory).subscribe(data4 => {console.log(data4);this.data4 = data4;this.dataDisplay = data4;},err => {console.log(err);});
+    
+  }
+
+
+
+
+
+
+
+
+getAllQuestionsOfFormTypeWithinCategory(): void {
+
+ /**  let zw: boolean = false;
+
+  for(let i = 0; i < this.data.length; i++) {
+      
+     if(this.chosenFormTypeCat == this.data[i].formType){
+        
+     for(let e = 0; e < this.data[i].questionCategories.length; e++){
+       
+        if(this.chosenCategoryCat == this.data[i].questionCategories[e].category){
+            
+          zw = true;
+        }
+      }
+    }
+  }**/
+
+if(this.chosenFormTypeCat == "Alle Fragen"){
+  if(this.chosenCategoryCat != "keine Kategorie"){
+    
+      console.log("Keine Keine !!!!");
+      this.getCategory();
+
+    }else{
+
+    this.getAllQuestion();
+    console.log("ALLEEE !!!!");
+  }
+
+}else{
+  if(this.chosenCategoryCat == "keine Kategorie"){
+ 
+ 
+     this.formType = this.chosenFormTypeCat;
+     this.urlFormType = 'http://localhost:8090/type/' + this.formType;
+ 
+     this.api.getFormType(this.urlFormType).subscribe(data4 => {console.log(data4);this.data4 = data4;this.dataDisplay = data4;},err => {console.log(err);});
+     
+   
+    
+  }else{
+
+    this.formTypeCat = this.chosenFormTypeCat; 
+    this.categoryCat = this.chosenCategoryCat; 
+    this.urlFormTypeCategory = 'http://localhost:8090/type/' + this.formTypeCat + '/category/' + this.categoryCat;
+
+    this.api.getAllQuestionsOfFormTypeWithinCategory(this.urlFormTypeCategory).subscribe(data4 => {console.log(data4);this.data4 = data4;this.dataDisplay = data4;},err => {console.log(err);});
+  }
+}
 
 }
+
+
+
+
+
 
 editQuestion(): void{
     
@@ -685,7 +839,18 @@ editQuestion(): void{
 
   this.api.editQuestion(this.urlEdit, dataShort, this.editId).subscribe(data => {console.log(data);this.data = data;this.dataDisplay = data;
     
+
+    this.dataSetCat = new Set<String>();
+    this.dataSetCat.add("keine Kategorie")
+    for(let u1 = 0; u1 < data.length; u1++){
+      for(let u2 = 0; u2 < data[u1].questionCategories.length; u2++){
+      this.dataSetCat.add(data[u1].questionCategories[u2].category);
+    }
+  }
+
+
         this.dataSet =  new Set<String>();
+        this.dataSet.add("Alle Fragen");
         for(let u = 0; u < data.length; u++){
           this.dataSet.add(data[u].formType);
         }
@@ -712,7 +877,17 @@ this.urlDelete = 'http://localhost:8090/frage/' + this.deleteIdQuestion + '/dele
 
 this.api.deleteQuestion(this.urlDelete, this.deleteIdQuestion).subscribe(data => {console.log(data);this.data = data; this.dataDisplay = data;
 
+  this.dataSetCat = new Set<String>();
+  this.dataSetCat.add("keine Kategorie")
+  for(let u1 = 0; u1 < data.length; u1++){
+    for(let u2 = 0; u2 < data[u1].questionCategories.length; u2++){
+    this.dataSetCat.add(data[u1].questionCategories[u2].category);
+  }
+}
+
+
         this.dataSet =  new Set<String>();
+        this.dataSet.add("Alle Fragen");
         for(let u = 0; u < data.length; u++){
           this.dataSet.add(data[u].formType);
         }
